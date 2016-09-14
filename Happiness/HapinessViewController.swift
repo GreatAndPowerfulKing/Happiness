@@ -15,7 +15,7 @@ class HappinessViewController: UIViewController, FaceViewDataSource {
         didSet {
             happiness = min(max(happiness, 0), 100)
 //            println((defaults.valueForKey("HappinessViewControllerHappiness")))
-            defaults.setInteger(happiness, forKey: "HappinessViewControllerHappiness")
+            defaults.set(happiness, forKey: "HappinessViewControllerHappiness")
             updateUI()
         }
     }
@@ -23,50 +23,50 @@ class HappinessViewController: UIViewController, FaceViewDataSource {
     @IBOutlet weak var faceView: FaceView! {
         didSet {
             faceView.dataSource = self
-            faceView.addGestureRecognizer(UIPinchGestureRecognizer(target: faceView, action: Selector("scale:")))
+            faceView.addGestureRecognizer(UIPinchGestureRecognizer(target: faceView, action: Selector(("scale:"))))
             faceView.addGestureRecognizer(UIRotationGestureRecognizer(target: faceView, action: Selector("rotate:")))
 //            happiness = Int(defaults.valueForKey("HappinessViewControllerHappiness")? as? NSNumber ?? 75)
         }
     }
     
-    let defaults = NSUserDefaults.standardUserDefaults()
+    let defaults = UserDefaults.standard
     
-    private struct Constants {
+    fileprivate struct Constants {
         static let HappinessGestureScale: CGFloat = 4
         static let HappinessKeyForUserDefaults = "HappinessViewControllerHappiness"
     }
     
-    @IBAction func changeHappiness(gesture: UIPanGestureRecognizer) {
+    @IBAction func changeHappiness(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
-        case .Ended:
+        case .ended:
             fallthrough
-        case .Changed:
-            let translation = gesture.translationInView(faceView)
+        case .changed:
+            let translation = gesture.translation(in: faceView)
             let happinessChanged = -Int(translation.y / Constants.HappinessGestureScale)
             if happinessChanged != 0 {
                 happiness += happinessChanged
-                gesture.setTranslation(CGPointZero, inView: faceView)
+                gesture.setTranslation(CGPoint.zero, in: faceView)
             }
         default:
             break
         }
     }
     
-    private func updateUI() {
+    fileprivate func updateUI() {
         faceView.setNeedsDisplay()
     }
     
-    func smilinessForFaceView(sender: FaceView) -> Double? {
+    func smilinessForFaceView(_ sender: FaceView) -> Double? {
         
         return Double(happiness - 50) / 50
     }
     
     override func viewDidLoad() {
-        happiness = Int(defaults.valueForKey("HappinessViewControllerHappiness") as? NSNumber ?? 75)
+        happiness = Int(defaults.value(forKey: "HappinessViewControllerHappiness") as? NSNumber ?? 75)
     }
     
-    override func viewWillDisappear(animated: Bool) {
-        defaults.setInteger(happiness, forKey: "HappinessViewControllerHappiness")
+    override func viewWillDisappear(_ animated: Bool) {
+        defaults.set(happiness, forKey: "HappinessViewControllerHappiness")
     }
 }
 
